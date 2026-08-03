@@ -18,9 +18,9 @@ database/
 ## Connecting via CLI or GUI
 - **Host**: `localhost` (or `db` inside Docker network)
 - **Port**: `5432`
-- **Database**: `forecast_db`
-- **Username**: `forecast_user`
-- **Password**: `forecast_secret`
+- **Database**: `forecast_db`(example)
+- **Username**: `forecast_user`(example)
+- **Password**: `forecast_secret`(example)
 ### Psql Connection Command
 ```bash
 psql -h localhost -p 5432 -U forecast_user -d forecast_db
