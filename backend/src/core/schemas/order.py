@@ -12,6 +12,7 @@ class OrderItemCreate(BaseModel):
     unit_price: float = Field(..., gt=0)
     discount_amount: float = Field(0.0, ge=0)
     tax_amount: float = Field(0.0, ge=0)
+
 class OrderItemOut(BaseModel):
     id: int
     product_id: int
@@ -22,12 +23,14 @@ class OrderItemOut(BaseModel):
     total_sales: float
     product: Optional[ProductOut] = None
     model_config = ConfigDict(from_attributes=True)
+
 class SalesOrderCreate(BaseModel):
     order_date: datetime
     store_id: int
     customer_type: str = "Retail"
     payment_mode: str = "Cash"
     items: List[OrderItemCreate]
+    
 class SalesOrderOut(BaseModel):
     id: int
     order_date: datetime
