@@ -1,0 +1,51 @@
+services:
+  # --------------------------------------------------------------------------
+  # Standalone PostgreSQL Database Engine
+  # --------------------------------------------------------------------------
+  db:
+    image: postgres:16-alpine
+    container_name: forecast_engine_db
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+    ports:
+      - ${POSTGRES_PORT:-5432}:5432 # Uses .env port, defaults to 5432 if missing
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.db:ro
+    healthcheck:
+      # Injecting into the healthcheck command
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    
+  # --------------------------------------------------------------------------
+  # FastAPI Analytical & Forecasting Backend
+  # --------------------------------------------------------------------------
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: forecast_backend_api
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_HOST=db
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_PORT=${POSTGRES_PORT}
+    depends_on:
+      db:
+        condition: service_healthy
+  
+volumes:
+  postgres_data:
+    driver: local
+
