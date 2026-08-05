@@ -1,7 +1,7 @@
 from datetime import datetime
 from pydantic import BaseModel, ConfigDict, Field
 from typing import Optional
-from schemas.category import CategoryOut
+from src.core.schemas import CategoryOut
 # ------------------------------------------------------------------------------
 # Product Schemas
 # ------------------------------------------------------------------------------
