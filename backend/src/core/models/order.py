@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime,timezone
 from sqlalchemy import Column, Integer, String, Numeric, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
 from src.core.database import Base
@@ -11,7 +11,7 @@ class SalesOrder(Base):
     store_id = Column(Integer, ForeignKey("stores.id", ondelete="CASCADE"), nullable=False)
     customer_type = Column(String(30), default="Retail")
     payment_mode = Column(String(30), default="Cash")
-    created_at = Column(DateTime(timezone=True), default=datetime.now(datetime.UTC))
+    created_at = Column(DateTime(timezone=True), default=lambda:datetime.now(timezone.utc))
 
     store = relationship("Store")
     items = relationship("OrderItem", back_populates="order", cascade="all, delete-orphan")

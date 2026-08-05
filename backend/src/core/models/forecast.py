@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from sqlalchemy import Column, Integer, String, Date, Numeric, DateTime, ForeignKey, UniqueConstraint
 from sqlalchemy.orm import relationship
 from src.core.database import Base
@@ -15,7 +15,7 @@ class ForecastResult(Base):
     model_name = Column(String(50), nullable=False)
     mape_score = Column(Numeric(5, 2), nullable=True)
     rmse_score = Column(Numeric(10, 2), nullable=True)
-    created_at = Column(DateTime(timezone=True), default=datetime.now(datetime.UTC))
+    created_at = Column(DateTime(timezone=True), default=lambda:datetime.now(timezone.utc))
 
     product = relationship("Product")
     store = relationship("Store")
