@@ -1,10 +1,10 @@
 import io
 import pandas as pd
 from sqlalchemy.orm import Session
-from sqlalchemy import text
-from src.modules.etl.cleaner import DataCleaner
+# from sqlalchemy import text
+from src.modules.etl import DataCleaner
 from src.core.models import SalesOrder, OrderItem
-from src.modules.etl.aggregator import ETLAggregate
+from src.modules.etl import ETLAggregate
 
 class ETLImport:
     @staticmethod

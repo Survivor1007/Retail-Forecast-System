@@ -1,6 +1,6 @@
 # ----------------------------------------------------------------------------------------
 # src/core/models/__init__.py
-# Function: Export  all models from __init__.py, the rest of your application can import models smoothly without knowing where they reside physically
+# Function: Export  all models from __init__.py, the rest of the  application can import models smoothly without knowing where they reside physically
 # ----------------------------------------------------------------------------------------
 
 from src.core.database import Base
