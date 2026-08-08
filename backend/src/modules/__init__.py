@@ -4,3 +4,5 @@
 # ===========================================================================
 
 from .etl import DataCleaner, ETLAggregate, ETLImport
+from .analytics.aggregations import AnalyticsEngine
+from .forecasting import MovingAverageForecaster, RidgeRegressionForecaster, ModelEvaluator
