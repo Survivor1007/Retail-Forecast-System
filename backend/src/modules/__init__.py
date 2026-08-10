@@ -6,3 +6,4 @@
 from .etl import DataCleaner, ETLAggregate, ETLImport
 from .analytics.aggregations import AnalyticsEngine
 from .forecasting import MovingAverageForecaster, RidgeRegressionForecaster, ModelEvaluator
+from .inventory.risk_engine import InventoryRiskEngine
