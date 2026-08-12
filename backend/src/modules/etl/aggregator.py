@@ -27,7 +27,7 @@ class ETLAggregate:
             sql_query += f" WHERE DATE(so.order_date) = '{target_date}'"
 
         sql_query += """
-            GROUP BY DATE(so.order_date), so.product_id, io.product_id
+            GROUP BY DATE(so.order_date), so.store_id, oi.product_id
             ON CONFLICT (sales_date, store_id, product_id) DO UPDATE  SET 
                 total_quantity_sold = EXCLUDED.total_quantity_sold,
                 total_revenue = EXCLUDED.total_revenue,
