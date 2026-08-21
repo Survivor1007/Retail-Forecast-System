@@ -45,6 +45,21 @@ services:
       db:
         condition: service_healthy
   
+  # --------------------------------------------------------------------------
+  # React + TypeScript + NGINX Frontend Dashboard
+  # --------------------------------------------------------------------------
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: forecast_frontend_ui
+    restart: always
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+
+      
 volumes:
   postgres_data:
     driver: local
