@@ -1,2 +1,2 @@
 from .evaluator import ModelEvaluator
-from .models import MovingAverageForecaster, RidgeRegressionForecaster
+from .models import MovingAverageForecaster, RidgeRegressionForecaster, LassoRegressionForecaster, RandomForestForecaster, TimeSeriesFeatureExtractor

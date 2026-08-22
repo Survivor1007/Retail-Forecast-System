@@ -16,7 +16,7 @@ class ForecastDataPoint(BaseModel):
     predicted_quantity: float
     confidence_lower: float
     confidence_upper: float
-    
+
 class ForecastResultOut(BaseModel):
     product_id: int
     product_name: str
@@ -25,12 +25,15 @@ class ForecastResultOut(BaseModel):
     mape_score: Optional[float] = None
     rmse_score: Optional[float] = None
     forecast_points: List[ForecastDataPoint]
-
+    
 class ModelMetricOut(BaseModel):
     product_id: int
     product_name: str
     store_id: int
     winning_model: str
     sma_mape: Optional[float] = None
+    ema_mape: Optional[float] = None
     ridge_mape: Optional[float] = None
+    lasso_mape: Optional[float] = None
+    rf_mape: Optional[float] = None
     selected_mape: Optional[float] = None

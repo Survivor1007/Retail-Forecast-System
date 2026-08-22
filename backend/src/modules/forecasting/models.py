@@ -1,7 +1,8 @@
 import numpy as np
 import pandas as pd
-from typing import Tuple
-from sklearn.linear_model import Ridge
+from typing import List, Dict, Any, Tuple
+from sklearn.linear_model import Ridge, Lasso
+from sklearn.ensemble import RandomForestRegressor
 
 class MovingAverageForecaster:
     """
@@ -22,21 +23,10 @@ class MovingAverageForecaster:
         return np.full(horizon, max(0.0, float(ema_val)))
 
 
-class RidgeRegressionForecaster:
-    """
-    Statistical Machine Learning forecaster using Scikit-Learn Ridge Regression
-    with calendar, lag, and trend feature engineering.
-    """
+class TimeSeriesFeatureExtractor:
+    """Helper utility for engineering lag, calendar, rolling, and trend features."""
     @staticmethod
     def create_features(df: pd.DataFrame) -> Tuple[pd.DataFrame, pd.Series]:
-        """
-        Engineers feature matrix X and target y from time-series DataFrame with columns ['sales_date', 'quantity'].
-        Features:
-        - dayofweek (0-6)
-        - lag_1, lag_7
-        - rolling 7-day mean
-        - linear trend index
-        """
         data = df.copy().sort_values('sales_date').reset_index(drop=True)
         data['sales_date'] = pd.to_datetime(data['sales_date'])
         
@@ -46,7 +36,6 @@ class RidgeRegressionForecaster:
         data['rolling_7'] = data['quantity'].shift(1).rolling(7).mean()
         data['trend'] = np.arange(len(data))
 
-        # Drop NaN rows resulting from shifts
         data_clean = data.dropna().copy()
         
         feature_cols = ['dayofweek', 'lag_1', 'lag_7', 'rolling_7', 'trend']
@@ -54,17 +43,16 @@ class RidgeRegressionForecaster:
         y = data_clean['quantity']
         return X, y
 
+
+class RidgeRegressionForecaster:
+    """Statistical ML forecaster using Scikit-Learn Ridge Regression (L2 Regularization)."""
     @classmethod
     def fit_and_predict(cls, df_history: pd.DataFrame, horizon: int) -> np.ndarray:
-        """
-        Fits Ridge Regression model on historical data and recursively predicts forward horizon days.
-        """
         if len(df_history) < 14:
-            # Fallback to SMA if insufficient data for feature engineering
             return MovingAverageForecaster.predict_sma(df_history['quantity'], window=7, horizon=horizon)
 
         data = df_history.copy().sort_values('sales_date').reset_index(drop=True)
-        X, y = cls.create_features(data)
+        X, y = TimeSeriesFeatureExtractor.create_features(data)
 
         if len(X) < 5:
             return MovingAverageForecaster.predict_sma(df_history['quantity'], window=7, horizon=horizon)
@@ -72,7 +60,10 @@ class RidgeRegressionForecaster:
         model = Ridge(alpha=1.0)
         model.fit(X, y)
 
-        # Recursive multi-step prediction
+        return cls._recursive_predict(model, data, horizon)
+
+    @staticmethod
+    def _recursive_predict(model, data: pd.DataFrame, horizon: int) -> np.ndarray:
         predictions = []
         last_date = pd.to_datetime(data['sales_date'].iloc[-1])
         temp_df = data.copy()
@@ -97,8 +88,45 @@ class RidgeRegressionForecaster:
             pred_val = max(0.0, pred_val)
             predictions.append(pred_val)
 
-            # Append prediction to temp_df for recursive next lag step
             new_row = pd.DataFrame([{'sales_date': next_date, 'quantity': pred_val}])
             temp_df = pd.concat([temp_df, new_row], ignore_index=True)
 
         return np.array(predictions)
+
+
+class LassoRegressionForecaster:
+    """Statistical ML forecaster using Scikit-Learn Lasso Regression (L1 Feature Selection)."""
+    @classmethod
+    def fit_and_predict(cls, df_history: pd.DataFrame, horizon: int) -> np.ndarray:
+        if len(df_history) < 14:
+            return MovingAverageForecaster.predict_sma(df_history['quantity'], window=7, horizon=horizon)
+
+        data = df_history.copy().sort_values('sales_date').reset_index(drop=True)
+        X, y = TimeSeriesFeatureExtractor.create_features(data)
+
+        if len(X) < 5:
+            return MovingAverageForecaster.predict_sma(df_history['quantity'], window=7, horizon=horizon)
+
+        model = Lasso(alpha=0.1, max_iter=2000, random_state=42)
+        model.fit(X, y)
+
+        return RidgeRegressionForecaster._recursive_predict(model, data, horizon)
+
+
+class RandomForestForecaster:
+    """Non-linear Ensemble ML forecaster using Scikit-Learn Random Forest Regressor."""
+    @classmethod
+    def fit_and_predict(cls, df_history: pd.DataFrame, horizon: int) -> np.ndarray:
+        if len(df_history) < 14:
+            return MovingAverageForecaster.predict_sma(df_history['quantity'], window=7, horizon=horizon)
+
+        data = df_history.copy().sort_values('sales_date').reset_index(drop=True)
+        X, y = TimeSeriesFeatureExtractor.create_features(data)
+
+        if len(X) < 5:
+            return MovingAverageForecaster.predict_sma(df_history['quantity'], window=7, horizon=horizon)
+
+        model = RandomForestRegressor(n_estimators=50, max_depth=5, random_state=42)
+        model.fit(X, y)
+
+        return RidgeRegressionForecaster._recursive_predict(model, data, horizon)
