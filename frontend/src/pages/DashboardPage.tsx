@@ -1,21 +1,21 @@
 import React, { useState, useEffect } from 'react';
-import { Navbar } from '../components/Navbar';
 import { KPIHeader } from '../components/KPIHeader';
 import { ForecastChart } from '../components/ForecastChart';
 import { InventoryAlertsTable } from '../components/InventoryAlertsTable';
 import { TopProductsWidget } from '../components/TopProductsWidget';
-import { DataUploadModal } from '../components/DataUploadModal';
 import { 
-  getStores, getProducts, getAnalyticsSummary, getTopProducts, 
+  getProducts, getAnalyticsSummary, getTopProducts, 
   getForecastResults, generateForecast, getInventoryAlerts, 
   getABCAnalysis, dismissAlert 
 } from '../services/api';
-import { type Store, type Product, type AnalyticsSummary, type TopProduct, type ForecastResult, type InventoryAlert, type ABCAnalysis } from '../types';
+import type { Product, AnalyticsSummary, TopProduct, ForecastResult, InventoryAlert, ABCAnalysis } from '../types';
 
-export const DashboardPage: React.FC = () => {
-  const [stores, setStores] = useState<Store[]>([]);
+interface DashboardPageProps {
+  selectedStoreId?: number;
+}
+
+export const DashboardPage: React.FC<DashboardPageProps> = ({ selectedStoreId }) => {
   const [products, setProducts] = useState<Product[]>([]);
-  const [selectedStoreId, setSelectedStoreId] = useState<number | undefined>(undefined);
   const [selectedProductId, setSelectedProductId] = useState<number | undefined>(undefined);
   
   const [summary, setSummary] = useState<AnalyticsSummary | null>(null);
@@ -30,20 +30,10 @@ export const DashboardPage: React.FC = () => {
   const [abcAnalysis, setAbcAnalysis] = useState<ABCAnalysis | null>(null);
 
   const [loading, setLoading] = useState<boolean>(true);
-  const [isUploadOpen, setIsUploadOpen] = useState<boolean>(false);
 
   // Initial Master Data load
   useEffect(() => {
-    const fetchMasterData = async () => {
-      try {
-        const [storesData, productsData] = await Promise.all([getStores(), getProducts()]);
-        setStores(storesData);
-        setProducts(productsData);
-      } catch (err) {
-        console.error('Failed to load master data:', err);
-      }
-    };
-    fetchMasterData();
+    getProducts().then(setProducts).catch(console.error);
   }, []);
 
   // Fetch Dashboard Analytics Data on Store Change
@@ -95,14 +85,7 @@ export const DashboardPage: React.FC = () => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-6">
-      <Navbar
-        stores={stores}
-        selectedStoreId={selectedStoreId}
-        onSelectStore={setSelectedStoreId}
-        onOpenUpload={() => setIsUploadOpen(true)}
-      />
-
+    <div className="space-y-6">
       <KPIHeader summary={summary} loading={loading} />
 
       <ForecastChart
@@ -126,15 +109,6 @@ export const DashboardPage: React.FC = () => {
         topProducts={topProducts}
         currentMetric={topMetric}
         onToggleMetric={setTopMetric}
-      />
-
-      <DataUploadModal
-        isOpen={isUploadOpen}
-        onClose={() => setIsUploadOpen(false)}
-        onSuccess={() => {
-          setIsUploadOpen(false);
-          refreshDashboardData();
-        }}
       />
     </div>
   );
