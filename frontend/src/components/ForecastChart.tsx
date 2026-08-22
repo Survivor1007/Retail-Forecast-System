@@ -124,7 +124,7 @@ export const ForecastChart: React.FC<ForecastChartProps> = ({
                   boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
                 }}
               />
-              <Legend verticalAlign="top" height={36} />
+              <Legend position="top" height={36} />
               <Area type="monotone" dataKey="ConfidenceBand" fill={isDark ? "rgba(6, 182, 212, 0.15)" : "rgba(6, 182, 212, 0.25)"} stroke="none" name="95% Confidence Interval" />
               <Line type="monotone" dataKey="Actual" stroke="#3b82f6" strokeWidth={3} dot={{ r: 3 }} name="Actual Historical Sales" />
               <Line type="monotone" dataKey="Predicted" stroke="#06b6d4" strokeWidth={3} strokeDasharray="5 5" dot={{ r: 4 }} name={`Predicted Sales (${currentResult?.winning_model})`} />

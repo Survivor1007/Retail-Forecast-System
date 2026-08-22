@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Cpu, Play, Award, Loader2 } from 'lucide-react';
 import { ForecastChart } from '../components/ForecastChart';
 import { getForecastResults, generateForecast, getProducts } from '../services/api';
-import { type ForecastResult, type Product } from '../types';
+import type { ForecastResult, Product } from '../types';
 
 interface ForecastingPageProps {
   selectedStoreId?: number;
@@ -48,6 +48,21 @@ export const ForecastingPage: React.FC<ForecastingPageProps> = ({ selectedStoreI
     }
   };
 
+  const getModelBadge = (modelName: string) => {
+    switch (modelName) {
+      case 'Random_Forest':
+        return 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/30';
+      case 'Lasso_Regression':
+        return 'bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/30';
+      case 'Ridge_Regression':
+        return 'bg-purple-500/15 text-purple-600 dark:text-purple-400 border-purple-500/30';
+      case 'EMA_14':
+        return 'bg-cyan-500/15 text-cyan-600 dark:text-cyan-400 border-cyan-500/30';
+      default:
+        return 'bg-blue-500/15 text-blue-600 dark:text-blue-400 border-blue-500/30';
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Header Banner */}
@@ -59,7 +74,7 @@ export const ForecastingPage: React.FC<ForecastingPageProps> = ({ selectedStoreI
               <h1 className="text-xl font-bold text-slate-900 dark:text-white">Forecasting Model Studio</h1>
             </div>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-              Dynamic model competition evaluating Simple Moving Average (SMA/EMA) vs Scikit-Learn Ridge Regression.
+              5-Model Competition Engine evaluating SMA, EMA, Ridge, Lasso, and Random Forest models on holdout test splits.
             </p>
           </div>
 
@@ -123,11 +138,7 @@ export const ForecastingPage: React.FC<ForecastingPageProps> = ({ selectedStoreI
                   <tr key={res.product_id} className="hover:bg-slate-100/80 dark:hover:bg-white/5 transition-colors">
                     <td className="p-3 font-semibold text-slate-800 dark:text-slate-200">{res.product_name}</td>
                     <td className="p-3">
-                      <span className={`px-2.5 py-1 rounded-full text-[11px] font-bold border ${
-                        res.winning_model === 'Ridge_Regression'
-                          ? 'bg-purple-500/15 text-purple-600 dark:text-purple-400 border-purple-500/30'
-                          : 'bg-blue-500/15 text-blue-600 dark:text-blue-400 border-blue-500/30'
-                      }`}>
+                      <span className={`px-2.5 py-1 rounded-full text-[11px] font-bold border ${getModelBadge(res.winning_model)}`}>
                         {res.winning_model}
                       </span>
                     </td>

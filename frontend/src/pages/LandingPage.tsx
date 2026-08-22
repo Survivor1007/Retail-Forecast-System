@@ -1,9 +1,9 @@
 import React from 'react';
 import { 
-    Cpu, ShieldAlert, BarChart3, Database, Layers, ArrowRight, 
-    Zap, Sparkles, Activity, Server
+  Cpu, ShieldAlert, BarChart3, Database, Layers, ArrowRight, 
+  Zap, Sparkles, Activity, Server
 } from 'lucide-react';
-import { type ActiveTab } from '../components/Navbar';
+import type { ActiveTab } from '../components/Navbar';
 
 interface LandingPageProps {
   onNavigate: (tab: ActiveTab) => void;
@@ -14,8 +14,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate, onOpenUplo
   const capabilities = [
     {
       icon: Cpu,
-      title: 'Model Competition Engine',
-      description: 'Dynamic evaluation comparing baseline Moving Averages against Scikit-Learn Ridge Regression based on MAPE & RMSE error metrics.',
+      title: '5-Model Competition Engine',
+      description: 'Dynamic evaluation comparing SMA, EMA, Ridge Regression, Lasso Regression, and Random Forest based on MAPE & RMSE error metrics.',
       color: 'text-blue-500 dark:text-blue-400',
       bg: 'bg-blue-500/10 border-blue-500/20',
       tab: 'forecasting' as ActiveTab,
@@ -63,7 +63,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate, onOpenUplo
   ];
 
   const metricsStats = [
-    { label: 'Forecast Accuracy Metric', value: 'MAPE & RMSE', detail: 'Dynamic competition' },
+    { label: 'Forecast Accuracy Metric', value: 'MAPE & RMSE', detail: '5-Model Competition' },
     { label: 'Aggregation Speed', value: '< 15 ms', detail: 'PostgreSQL window functions' },
     { label: 'Pareto Class Distribution', value: '80 / 15 / 5', detail: 'Revenue Pareto rule' },
     { label: 'Forecast Horizon', value: '7 & 30 Days', detail: 'Forward predictions' },
@@ -90,7 +90,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate, onOpenUplo
             </h1>
 
             <p className="text-sm md:text-base text-slate-600 dark:text-slate-300 max-w-2xl font-normal leading-relaxed">
-              Transform raw retail sales transactions into statistical forecasts, model competition evaluations, and automated stockout/deadstock risk alerts.
+              Transform raw retail sales transactions into statistical forecasts, 5-model competition evaluations, and automated stockout/deadstock risk alerts.
             </p>
 
             <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 pt-2">
@@ -122,10 +122,10 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate, onOpenUplo
                   <span>Engine:</span> <span className="text-blue-400">FastAPI + PostgreSQL</span>
                 </div>
                 <div className="flex justify-between text-slate-300">
-                  <span>ML Model:</span> <span className="text-purple-400">Ridge Regression vs SMA</span>
+                  <span>ML Ensemble:</span> <span className="text-purple-400">Random Forest, Lasso, Ridge, EMA, SMA</span>
                 </div>
                 <div className="flex justify-between text-slate-300">
-                  <span>Evaluation:</span> <span className="text-amber-400">Holdout MAPE Score</span>
+                  <span>Evaluation:</span> <span className="text-amber-400">Holdout MAPE & RMSE Score</span>
                 </div>
                 <div className="flex justify-between text-slate-300">
                   <span>Pareto Analysis:</span> <span className="text-emerald-400">ABC Classification</span>
@@ -219,8 +219,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate, onOpenUplo
             </p>
           </div>
           <div className="bg-slate-100 dark:bg-slate-800/60 p-4 rounded-xl border border-slate-200 dark:border-white/10 space-y-2">
-            <div className="text-xs font-bold text-cyan-600 dark:text-cyan-400">03. MODEL COMPETITION</div>
-            <div className="text-sm font-semibold text-slate-900 dark:text-white">SMA vs Ridge Evaluator</div>
+            <div className="text-xs font-bold text-cyan-600 dark:text-cyan-400">03. 5-MODEL COMPETITION</div>
+            <div className="text-sm font-semibold text-slate-900 dark:text-white">SMA, EMA, Ridge, Lasso, RF</div>
             <p className="text-xs text-slate-500 dark:text-slate-400">
               Computes test MAPE & RMSE, picks lowest error model, and generates confidence intervals.
             </p>
