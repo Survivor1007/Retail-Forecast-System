@@ -32,7 +32,7 @@ services:
     container_name: forecast_backend_api
     restart: unless-stopped
     ports:
-      - "8000:8000"
+      - "8000:10000"
     volumes:
       - ./backend:/app
     environment:
