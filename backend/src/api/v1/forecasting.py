@@ -4,16 +4,16 @@ from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session
 from src.core.database import get_db
-from src.core.models import DailySalesAggregate, Product, ForecastResult
+from src.core.models import DailySalesAggregate, Product, Store, ForecastResult
 from src.core.schemas import ForecastGenerateRequest, ForecastResultOut, ForecastDataPoint, ModelMetricOut
-from src.modules import ModelEvaluator
+from src.modules.forecasting.evaluator import ModelEvaluator
 
 router = APIRouter(prefix="/forecasting", tags=["Forecasting Model Engine"])
 
 @router.post("/generate", status_code=status.HTTP_200_OK)
 def generate_forecasts(payload: ForecastGenerateRequest, db: Session = Depends(get_db)):
     """
-    Triggers model competition (SMA vs Ridge Regression) across store-product items.
+    Triggers model competition (SMA, EMA, Ridge, Lasso, Random Forest) across store-product items.
     Saves winning forecast predictions with MAPE/RMSE scores to database.
     """
     query = db.query(DailySalesAggregate).order_by(DailySalesAggregate.sales_date)
@@ -37,7 +37,6 @@ def generate_forecasts(payload: ForecastGenerateRequest, db: Session = Depends(g
     ])
 
     saved_count = 0
-    today = date.today()
 
     for (st_id, prod_id), group in df.groupby(["store_id", "product_id"]):
         eval_result = ModelEvaluator.evaluate_and_forecast(group[["sales_date", "quantity"]], horizon=payload.horizon_days)
@@ -80,7 +79,7 @@ def generate_forecasts(payload: ForecastGenerateRequest, db: Session = Depends(g
 
     db.commit()
     return {
-        "message": f"Successfully generated {payload.horizon_days}-day sales forecast",
+        "message": f"Successfully evaluated models and generated {payload.horizon_days}-day sales forecast",
         "horizon_days": payload.horizon_days,
         "forecast_points_saved": saved_count
     }
@@ -123,7 +122,6 @@ def get_forecast_results(
         eval_res = ModelEvaluator.evaluate_and_forecast(group_sorted[["sales_date", "quantity"]], horizon=horizon_days)
 
         points = []
-        # Include recent 14 days of actual history
         recent_history = group_sorted.iloc[-14:]
         for _, r in recent_history.iterrows():
             points.append(ForecastDataPoint(
@@ -134,7 +132,6 @@ def get_forecast_results(
                 confidence_upper=float(r["quantity"])
             ))
 
-        # Append forecast horizon points
         last_date = group_sorted["sales_date"].max()
         for i in range(horizon_days):
             f_date = last_date + timedelta(days=i+1)
@@ -161,7 +158,7 @@ def get_forecast_results(
 @router.get("/metrics", response_model=List[ModelMetricOut])
 def get_model_metrics(store_id: Optional[int] = None, db: Session = Depends(get_db)):
     """
-    Leaderboard of model evaluation metrics (MAPE/RMSE) across all items.
+    Leaderboard of model evaluation metrics (MAPE/RMSE) across all items and candidate models.
     """
     query = db.query(DailySalesAggregate).order_by(DailySalesAggregate.sales_date)
     if store_id:
@@ -193,9 +190,13 @@ def get_model_metrics(store_id: Optional[int] = None, db: Session = Depends(get_
             product_name=products_map.get(prod_id, f"Product #{prod_id}"),
             store_id=st_id,
             winning_model=eval_res["winning_model"],
-            sma_mape=eval_res["sma_mape"],
-            ridge_mape=eval_res["ridge_mape"],
+            sma_mape=eval_res.get("sma_mape"),
+            ema_mape=eval_res.get("ema_mape"),
+            ridge_mape=eval_res.get("ridge_mape"),
+            lasso_mape=eval_res.get("lasso_mape"),
+            rf_mape=eval_res.get("rf_mape"),
             selected_mape=eval_res["mape"]
         ))
 
     return metrics
+ 
